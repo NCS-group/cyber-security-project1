@@ -1,0 +1,6 @@
+Flask==2.3.3
+Werkzeug==2.3.7
+flask-mysqldb==1.0.1
+mysqlclient==2.2.0
+requests==2.31.0
+urllib3==2.0.4

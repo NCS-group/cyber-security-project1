@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # DVWA Web Application
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: dvwa
+    ports:
+      - "8080:80"
+    environment:
+      - MYSQL_HOSTNAME=mysql
+      - MYSQL_USERNAME=dvwa
+      - MYSQL_PASSWORD=dvwa123
+      - MYSQL_DATABASE=dvwa
+    depends_on:
+      - mysql
+    networks:
+      - dvwa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/dvwa"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MySQL Database
+  mysql:
+    image: mysql:5.7
+    container_name: dvwa-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=dvwa123
+    volumes:
+      - dvwa_db_data:/var/lib/mysql
+    networks:
+      - dvwa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  dvwa_db_data:
+    driver: local
+
+networks:
+  dvwa-network:
+    driver: bridge
+
+# USAGE:
+# 1. Install Docker and Docker Compose
+# 2. Run: docker-compose up -d
+# 3. Wait for services to start (30-60 seconds)
+# 4. Access DVWA at: http://localhost:8080/dvwa
+# 5. Login with: admin / password
+# 6. Click "Setup / Reset DB" to initialize
+# 7. Use security platform to scan: http://localhost:8080/dvwa
+#
+# STOP:
+# docker-compose down
+#
+# REMOVE VOLUMES:
+# docker-compose down -v
